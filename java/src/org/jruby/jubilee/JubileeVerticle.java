@@ -1,6 +1,7 @@
 package org.jruby.jubilee;
 
 import io.vertx.core.*;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonArray;
@@ -30,7 +31,6 @@ public class JubileeVerticle extends AbstractVerticle {
         httpServerOptions.setPort(config.getInteger("port"));
         httpServerOptions.setHost(config.getString("host"));
         httpServerOptions.setAcceptBacklog(10000);
-        httpServerOptions.setClientAuthRequired(false);
 
         String root = config.getString("root", ".");
         this.runtime = createRuntime(root, config);
@@ -41,15 +41,14 @@ public class JubileeVerticle extends AbstractVerticle {
         boolean ssl = config.getBoolean("ssl");
         if (ssl) {
             KeyCertOptions keyStoreOptions = KeyCertOptions.options();
-            keyStoreOptions.setCertPath(config.getString("keystore_path"))
-                    .setKeyPath((config.getString("keystore_password")));
+            keyStoreOptions.setKeyPath(config.getString("keystore_path"))
+                    .setKeyValue(Buffer.buffer(config.getString("keystore_password").getBytes()));
             httpServerOptions.setSsl(true).setKeyStoreOptions(keyStoreOptions);
         }
-        HttpServer httpServer = getVertx().createHttpServer(httpServerOptions);
+        this.httpServer = getVertx().createHttpServer(httpServerOptions);
         try {
             app = new RackApplication((VertxSPI) getVertx(), runtime.getCurrentContext(), rackApplication, config);
             httpServer.requestHandler(req -> {
-                runtime.getOutputStream().println("jubilee verticle handle:");
                 app.call(req);
             });
             if (config.containsField("event_bus")) {
@@ -62,6 +61,7 @@ public class JubileeVerticle extends AbstractVerticle {
                 permit.addObject(new JsonObject());
                 sockJSServer.bridge(ebconf, permit, permit);
             }
+            httpServer.listen();
         } catch (IOException e) {
             runtime.getErrorStream().println("Failed to create RackApplication");
         }
@@ -69,6 +69,7 @@ public class JubileeVerticle extends AbstractVerticle {
 
     @Override
     public void stop(Future<Void> future) throws Exception {
+        this.httpServer.close();
         this.runtime.tearDown();
     }
 
@@ -124,4 +125,5 @@ public class JubileeVerticle extends AbstractVerticle {
 
     private Ruby runtime;
     private ClassLoader classLoader;
+    private HttpServer httpServer;
 }

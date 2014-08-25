@@ -51,7 +51,6 @@ public class RackApplication {
     }
 
     public void call(final HttpServerRequest request) {
-        runtime.getOutputStream().println("rack application call:");
 //        String te = request.headers().get(Const.Vertx.TRANSFER_ENCODING);
 //        String contentLength;
         final RackInput input;
@@ -103,7 +102,7 @@ public class RackApplication {
                 e.printStackTrace(runtime.getErrorStream());
             }
             return null;
-        }, (ar) -> {runtime.getOutputStream().println("handle call");});
+        }, null);
     }
 
 }
