@@ -35,8 +35,8 @@ Make sure you have JDK 8 installed.
 bundle && bundle exec rake install
 ```
 
-This is the development branch of jubilee, it uses the vertx
-3.0-SNAPSHOT for a working version, please check out the
+This is the development branch of jubilee, it uses the latest
+vertx 3.0.0-SNAPSHOT, for a working version, please check out the
 [2.x branch](https://github.com/isaiah/jubilee/tree/2.x).
 
 Rails
