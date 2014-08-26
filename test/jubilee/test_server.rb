@@ -21,8 +21,8 @@ class TestJubileeServer < MiniTest::Unit::TestCase
 
   def test_url_scheme_for_https
     config = Jubilee::Configuration.new(rackup: File.expand_path("../../apps/url_scheme.ru", __FILE__), port: @port, ssl: true,
-                                        ssl_keypath: File.expand_path("../../examples/keystore.jks", __FILE__),
-                                        ssl_certpath: File.expand_path("../../examples/server.cer", __FILE__), instances: 1)
+                                        ssl_keystore: File.expand_path("../../../examples/keystore.jks", __FILE__),
+                                        ssl_password: "hellojubilee", instances: 1)
     @server = Jubilee::Server.new(config.options)
     q = Queue.new
     @server.start{ q << 1 }

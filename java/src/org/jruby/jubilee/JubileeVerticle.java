@@ -1,12 +1,11 @@
 package org.jruby.jubilee;
 
 import io.vertx.core.*;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.net.KeyCertOptions;
+import io.vertx.core.net.JKSOptions;
 import io.vertx.core.spi.cluster.VertxSPI;
 import io.vertx.ext.sockjs.SockJSServer;
 import org.jruby.Ruby;
@@ -40,10 +39,10 @@ public class JubileeVerticle extends AbstractVerticle {
         final RackApplication app;
         boolean ssl = config.getBoolean("ssl");
         if (ssl) {
-            KeyCertOptions keyStoreOptions = KeyCertOptions.options();
-            keyStoreOptions.setKeyPath(config.getString("keystore_path"))
-                    .setKeyValue(Buffer.buffer(config.getString("keystore_password").getBytes()));
-            httpServerOptions.setSsl(true).setKeyStoreOptions(keyStoreOptions);
+            JKSOptions jksOptions = JKSOptions.options();
+            jksOptions.setPath(config.getString("keystore_path"))
+                    .setPassword(config.getString("keystore_password"));
+            httpServerOptions.setSsl(true).setKeyStoreOptions(jksOptions);
         }
         this.httpServer = getVertx().createHttpServer(httpServerOptions);
         try {
