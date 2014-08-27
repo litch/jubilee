@@ -1,5 +1,4 @@
 require 'test_helper'
-require 'timeout'
 require 'socket'
 class TestResponse < MiniTest::Unit::TestCase
   def setup
@@ -28,15 +27,12 @@ class TestResponse < MiniTest::Unit::TestCase
 
   def lines(count, s=@client)
     str = ""
-    timeout(5) do
-      count.times { str << s.gets }
-    end
+    count.times { str << s.gets }
     str
   end
 
   def valid_response(size = @sz, close = false)
-    conn = close ? "close" : "keep-alive"
-    %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\nServer: Jubilee\(\d\.\d\.\d\)\r\nContent-Length: #{size}\r\nConnection: #{conn}\r\nDate: (.*?)\r\n\r\n}
+    %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\nServer: Jubilee\(\d\.\d\.\d\)\r\nContent-Length: #{size}\r\nDate: (.*?)\r\n\r\n}
   end
 
   def test_one_with_content_length
@@ -44,7 +40,7 @@ class TestResponse < MiniTest::Unit::TestCase
     @client << @valid_request
     sz = @body[0].size.to_s
 
-    assert_match valid_response(sz), lines(7)
+    assert_match valid_response(sz), lines(6)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -53,13 +49,13 @@ class TestResponse < MiniTest::Unit::TestCase
     @client << @valid_request
     sz = @body[0].size.to_s
 
-    assert_match valid_response(sz), lines(7)
+    assert_match valid_response(sz), lines(6)
     assert_equal "Hello", @client.read(5)
 
     @client << @valid_request
     sz = @body[0].size.to_s
 
-    assert_match valid_response(sz), lines(7)
+    assert_match valid_response(sz), lines(6)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -68,25 +64,25 @@ class TestResponse < MiniTest::Unit::TestCase
     @client << @valid_post
     sz = @body[0].size.to_s
 
-    assert_match valid_response(sz), lines(7)
+    assert_match valid_response(sz), lines(6)
     assert_equal "Hello", @client.read(5)
 
     @client << @valid_request
     sz = @body[0].size.to_s
 
-    assert_match valid_response(sz), lines(7)
+    assert_match valid_response(sz), lines(6)
     assert_equal "Hello", @client.read(5)
   end
 
   def test_no_body_then_get
     start_server
     @client << @valid_no_body
-    assert_match %r{HTTP/1.1 204 No Content\r\nX-Header: Works\r\nConnection: keep-alive\r\n(.*?\r\n)*?\r\n}, lines(6)
+    assert_match %r{HTTP/1.1 204 No Content\r\nX-Header: Works\r\n(.*?\r\n)*?\r\n}, lines(5)
 
     @client << @valid_request
     sz = @body[0].size.to_s
 
-    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\nServer: Jubilee\(\d\.\d\.\d\)\r\nContent-Length: #{sz}\r\nConnection: keep-alive\r\n(.*?\r\n)*?\r\n}, lines(7)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\nServer: Jubilee\(\d\.\d\.\d\)\r\nContent-Length: #{sz}\r\n(.*?\r\n)*?\r\n}, lines(6)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -95,7 +91,7 @@ class TestResponse < MiniTest::Unit::TestCase
 
     @client << @valid_request
 
-    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\nServer: Jubilee\(\d\.\d\.\d\)\r\nConnection: keep-alive\r\nTransfer-Encoding: chunked\r\nDate(.*?)\r\n\r\n5\r\nHello\r\n7\r\nChunked\r\n0\r\n\r\n}, lines(13)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\nServer: Jubilee\(\d\.\d\.\d\)\r\nTransfer-Encoding: chunked\r\nDate(.*?)\r\n\r\n5\r\nHello\r\n7\r\nChunked\r\n0\r\n\r\n}, lines(12)
   end
 
   def test_no_chunked_in_http10
@@ -103,7 +99,7 @@ class TestResponse < MiniTest::Unit::TestCase
 
     @client << @http10_request
 
-    assert_match %r{HTTP/1.0 200 OK\r\nX-Header: Works\r\nServer: Jubilee\(\d\.\d\.\d\)\r\nConnection: close\r\nDate: (.*?)\r\n\r\n}, lines(6)
+    assert_match %r{HTTP/1.0 200 OK\r\nX-Header: Works\r\nServer: Jubilee\(\d\.\d\.\d\)\r\nDate: (.*?)\r\n\r\n}, lines(5)
     assert_equal "HelloChunked", @client.read
   end
 
@@ -113,7 +109,7 @@ class TestResponse < MiniTest::Unit::TestCase
 
     @client << @valid_request
 
-    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\nServer: Jubilee(.*?)\r\nConnection: keep-alive\r\nTransfer-Encoding: chunked\r\nDate: (.*?)\r\n\r\n5\r\nHello\r\n#{str.size.to_s(16)}\r\n#{str}\r\n0\r\n\r\n}, lines(13)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\nServer: Jubilee(.*?)\r\nTransfer-Encoding: chunked\r\nDate: (.*?)\r\n\r\n5\r\nHello\r\n#{str.size.to_s(16)}\r\n#{str}\r\n0\r\n\r\n}, lines(12)
 
   end
 
@@ -122,15 +118,25 @@ class TestResponse < MiniTest::Unit::TestCase
     @client << @close_request
     sz = @body[0].size.to_s
 
-    assert_match valid_response(sz, true), lines(7)
+    assert_match valid_response(sz, true), lines(6)
     assert_equal "Hello", @client.read(5)
   end
+
+  def test_client10_keep_alive
+    start_server
+    @client << @keep_request
+    sz = @body[0].size.to_s
+
+    assert_match %r{HTTP/1.0 200 OK\r\nX-Header: Works\r\nServer: Jubilee\(\d\.\d\.\d\)\r\nContent-Length: #{sz}\r\nConnection: keep-alive\r\nDate: (.*?)\r\n\r\n}, lines(7)
+    assert_equal "Hello", @client.read(5)
+  end
+
 
   def test_app_sets_content_length
     start_server("content_length")
     @client << @valid_request
 
-    assert_match valid_response(11), lines(7)
+    assert_match valid_response(11), lines(6)
     assert_equal "hello world", @client.read(11)
   end
 
@@ -138,7 +144,7 @@ class TestResponse < MiniTest::Unit::TestCase
     start_server("self_chunked")
     @client << @valid_request
 
-    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\nServer: Jubilee(.*?)\r\nConnection: keep-alive\r\nTransfer-Encoding: chunked\r\nDate: (.*?)\r\n\r\n5\r\nhello\r\n0\r\n\r\n}, lines(11)
+    assert_match %r{HTTP/1.1 200 OK\r\nX-Header: Works\r\nServer: Jubilee(.*?)\r\nTransfer-Encoding: chunked\r\nDate: (.*?)\r\n\r\n5\r\nhello\r\n0\r\n\r\n}, lines(10)
   end
 
 
@@ -151,10 +157,10 @@ class TestResponse < MiniTest::Unit::TestCase
 
     sz = @body[0].size.to_s
 
-    assert_match valid_response(sz), lines(7)
+    assert_match valid_response(sz), lines(6)
     assert_equal "Hello", @client.read(5)
 
-    assert_match valid_response(sz), lines(7)
+    assert_match valid_response(sz), lines(6)
     assert_equal "Hello", @client.read(5)
   end
 
@@ -168,10 +174,10 @@ class TestResponse < MiniTest::Unit::TestCase
 
     sz = @body[0].size.to_s
 
-    assert_match valid_response(sz), lines(7)
+    assert_match valid_response(sz), lines(6)
     assert_equal "Hello", @client.read(5)
 
-    assert_match valid_response(sz), lines(7)
+    assert_match valid_response(sz), lines(6)
     assert_equal "Hello", @client.read(5)
 
     #assert_kind_of Jubilee::IORackInput, @inputs[0]
@@ -192,7 +198,7 @@ class TestResponse < MiniTest::Unit::TestCase
     assert out, "select returned nil"
     assert_equal c2, out.first.first
 
-    assert_match valid_response(sz), lines(7, c2)
+    assert_match valid_response(sz), lines(6, c2)
     assert_equal "Hello", c2.read(5)
   end
 
