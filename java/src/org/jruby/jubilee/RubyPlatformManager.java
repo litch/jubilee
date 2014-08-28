@@ -69,6 +69,7 @@ public class RubyPlatformManager extends RubyObject {
     public IRubyObject start(final ThreadContext context, final Block block) {
         JubileeVerticle verticle = new JubileeVerticle();
         DeploymentOptions verticleConf = parseOptions(options);
+        verticleConf.setWorker(true);
         this.vertx.deployVerticleWithOptions(verticle, verticleConf, result -> {
             if (result.succeeded()) {
                 if (block.isGiven()) {

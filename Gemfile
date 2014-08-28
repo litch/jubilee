@@ -9,8 +9,6 @@ group :development do
 end
 
 group :test do
-  gem 'guard'
-  gem 'guard-minitest'
   gem 'multipart-post'
   gem 'rcov'
   gem 'rspec'
