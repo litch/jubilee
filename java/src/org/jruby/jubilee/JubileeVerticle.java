@@ -96,6 +96,7 @@ public class JubileeVerticle extends AbstractVerticle {
             loadPaths.add(entry.asJavaString());
         }
         instanceConfig.setLoadPaths(loadPaths);
+        instanceConfig.setUpdateNativeENVEnabled(false);
 
         instanceConfig.setLoader(getClassLoader());
         runtime = Ruby.newInstance(instanceConfig);
