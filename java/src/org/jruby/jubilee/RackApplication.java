@@ -2,10 +2,7 @@ package org.jruby.jubilee;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
-import io.vertx.core.VoidHandler;
-import io.vertx.core.buffer.Buffer;
+
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.spi.cluster.VertxSPI;
@@ -95,9 +92,9 @@ public class RackApplication {
                 PrintWriter printWriter = new PrintWriter(stringWriter);
                 e.printStackTrace(printWriter);
                 if (hideErrorStack) {
-                    request.response().writeStringAndEnd("Internal error.");
+                    request.response().end("Internal error.");
                 } else {
-                    request.response().writeStringAndEnd(message + stringWriter.toString());
+                    request.response().end(message + stringWriter.toString());
                 }
                 e.printStackTrace(runtime.getErrorStream());
             }

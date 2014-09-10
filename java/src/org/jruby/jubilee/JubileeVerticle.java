@@ -25,7 +25,7 @@ public class JubileeVerticle extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
-        JsonObject config = getConfig();
+        JsonObject config = vertx.currentContext().config();
         HttpServerOptions httpServerOptions = HttpServerOptions.options();
         httpServerOptions.setPort(config.getInteger("port"));
         httpServerOptions.setHost(config.getString("host"));

@@ -116,7 +116,7 @@ public class RubyNetSocket extends RubyObject {
             data = (RubyString) str.callMethod(context, "to_s");
         if (this.sock.writeQueueFull())
             waitWritable(this.sock);
-        this.sock.writeString(data.asJavaString());
+        this.sock.write(data.asJavaString());
         // TODO return the length actually written
         return data.length();
     }
