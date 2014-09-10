@@ -2,29 +2,6 @@
 
 Jubilee server
 =========
- 
-> "We need a web framework for Vertx.", you said.
-
-> "But why not use Vertx in your Rails applications, it's the most productive web framework ever created."
-
-The Answer is Jubilee, a rack server with [vertx 2.0](http://vertx.io) awesomeness builtin. Check out the
-[demo](http://192.241.201.68:8080/) [application](https://github.com/isaiah/jubilee/tree/master/examples/chatapp).
-
-Why another rack server?
-------------------------
-
-> "Vert.x is a lightweight, high performance application platform for the JVM
-> that's designed for modern mobile, web, and enterprise applications."
->      - vertx.io site
-
-By using Vertx, jubilee inherent advantages in terms of performance, and all
-the other cool features of Vertx:
-
-* [EventBus](https://github.com/isaiah/jubilee/wiki/Event-Bus)
-* [SharedData](https://github.com/isaiah/jubilee/wiki/SharedData)
-* [Clustering](https://github.com/isaiah/jubilee/wiki/Clustering)
-
-
 
 Get started
 ------------
